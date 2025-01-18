@@ -3,6 +3,8 @@ import random
 import math
 import matplotlib.pyplot as plt
 from dataset_B import all_B_set
+from dataset_P import all_P_set
+from dataset_E import all_E_set
 # from main_2 import demands, coordinates
 
 # from main_2 import coordinates
@@ -11,9 +13,9 @@ from dataset_B import all_B_set
 random.seed(42)
 np.random.seed(42)
 
-population_size = 300
+population_size = 400
 generations = 600
-elite_size = 100
+elite_size = 200
 mutation_rate = 0.3
 
 # Исходные данные из задачи B-n44-k7
@@ -231,7 +233,9 @@ def genetic_algorithm(demands, coordinates, capacity):
 check_disp = []
 # capacity = 280
 # num_trucks = 8
-for test in all_B_set():
+counter = 1
+for test in all_E_set():
+    print(f'Test № {counter}')
     coordinates, demands, capacity, car, answer = test
     best_cost, best_routes = genetic_algorithm(demands, coordinates, capacity)
     print("\nBest Solution:")
@@ -241,6 +245,7 @@ for test in all_B_set():
 
     print(f"\nTotal Cost: {best_cost:.2f}")
     check_disp.append((best_cost - answer) / best_cost)
+    counter += 1
     # plot_routes(best_routes)
 
 print(sum(check_disp) / len(check_disp))
