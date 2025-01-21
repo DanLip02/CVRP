@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+import pandas as pd
 import matplotlib.pyplot as plt
 from dataset_B import all_B_set
 from dataset_P import all_P_set
@@ -123,6 +124,27 @@ mutation_rate = 0.35
 #     6, 10, 20
 # ]
 
+
+def plot(dict_: dict):
+    df_avat = pd.DataFrame().from_dict(dict_).T
+    for row in df_avat.iterrows():
+        print(row[1].index)
+        plt.plot(row[1].index, row[1])
+    plt.legend(labels=df_avat.index)
+    plt.title("Optimization O3")
+    plt.xlabel("Num. of nodes")
+    plt.ylabel("derivation")
+    plt.show()
+
+def generate_dict(dict_: dict):
+    res = {}
+    for key, value in dict_.items():
+        if key not in res:
+            res[key] = []
+        res[key] = sum(value) / len(value)
+
+    return res
+
 # Расчёт евклидова расстояния между двумя городами
 def euclidean_distance(city1, city2):
     return math.sqrt((city1[0] - city2[0])**2 + (city1[1] - city2[1])**2)
@@ -235,6 +257,11 @@ check_disp = []
 timer_E = []
 timer_P = []
 timer_B = []
+
+dict_plot = {}
+local_E = {}
+local_B = {}
+local_P = {}
 # capacity = 280
 # num_trucks = 8
 counter = 1
@@ -251,9 +278,14 @@ for test in all_E_set():
     print(f"\nTotal Cost: {best_cost:.2f}")
     end_time = time.perf_counter()
     timer_E.append(end_time - start_time)
+    if len(coordinates) not in local_E:
+        local_E[len(coordinates)] = []
+    local_E[len(coordinates)].append((best_cost - answer) / best_cost)
     check_disp.append((best_cost - answer) / best_cost)
     counter += 1
     # plot_routes(best_routes)
+dict_plot['Set_E'] = generate_dict(local_E)
+
 for test in all_P_set():
     start_time = time.perf_counter()  # Более точное время
     print(f'Test № {counter}')
@@ -267,8 +299,14 @@ for test in all_P_set():
     print(f"\nTotal Cost: {best_cost:.2f}")
     end_time = time.perf_counter()
     timer_P.append(end_time - start_time)
+    if len(coordinates) not in local_P:
+        local_P[len(coordinates)] = []
+    local_P[len(coordinates)].append((best_cost - answer) / best_cost)
     check_disp.append((best_cost - answer) / best_cost)
     counter += 1
+
+dict_plot['Set_P'] = generate_dict(local_P)
+
 for test in all_B_set():
     print(f'Test № {counter}')
     start_time = time.perf_counter()
@@ -282,10 +320,15 @@ for test in all_B_set():
     print(f"\nTotal Cost: {best_cost:.2f}")
     end_time = time.perf_counter()
     timer_B.append(end_time - start_time)
+    if len(coordinates) not in local_B:
+        local_B[len(coordinates)] = []
+    local_B[len(coordinates)].append((best_cost - answer) / best_cost)
     check_disp.append((best_cost - answer) / best_cost)
     counter += 1
-
+dict_plot['Set_B'] = generate_dict(local_B)
 print("Avarage deviation: ", sum(check_disp) / len(check_disp))
 print("Time for all test from set B: ", sum(timer_B) / len(timer_B))
 print("Time for all test from set P: ", sum(timer_P) / len(timer_P))
 print("Time for all test from set E: ", sum(timer_E) / len(timer_E))
+
+plot(dict_plot)
