@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from dataset_B import all_B_set
 from dataset_P import all_P_set
 from dataset_E import all_E_set
+import time
 # from main_2 import demands, coordinates
 
 # from main_2 import coordinates
@@ -13,10 +14,10 @@ from dataset_E import all_E_set
 random.seed(42)
 np.random.seed(42)
 
-population_size = 400
-generations = 600
-elite_size = 200
-mutation_rate = 0.3
+population_size = 450
+generations = 800
+elite_size = 250
+mutation_rate = 0.35
 
 # Исходные данные из задачи B-n44-k7
 # coordinates = [
@@ -231,10 +232,30 @@ def genetic_algorithm(demands, coordinates, capacity):
 
 # Основной запуск
 check_disp = []
+timer_E = []
+timer_P = []
+timer_B = []
 # capacity = 280
 # num_trucks = 8
 counter = 1
 for test in all_E_set():
+    print(f'Test № {counter}')
+    start_time = time.perf_counter()  # Более точное время
+    coordinates, demands, capacity, car, answer = test
+    best_cost, best_routes = genetic_algorithm(demands, coordinates, capacity)
+    print("\nBest Solution:")
+    for i, route in enumerate(best_routes):
+        route_cost = calculate_cost(route, demands, coordinates, capacity)[0]
+        print(f"Route #{i + 1}: {' -> '.join(map(str, route))} | Cost = {route_cost:.2f}")
+
+    print(f"\nTotal Cost: {best_cost:.2f}")
+    end_time = time.perf_counter()
+    timer_E.append(end_time - start_time)
+    check_disp.append((best_cost - answer) / best_cost)
+    counter += 1
+    # plot_routes(best_routes)
+for test in all_P_set():
+    start_time = time.perf_counter()  # Более точное время
     print(f'Test № {counter}')
     coordinates, demands, capacity, car, answer = test
     best_cost, best_routes = genetic_algorithm(demands, coordinates, capacity)
@@ -244,8 +265,27 @@ for test in all_E_set():
         print(f"Route #{i + 1}: {' -> '.join(map(str, route))} | Cost = {route_cost:.2f}")
 
     print(f"\nTotal Cost: {best_cost:.2f}")
+    end_time = time.perf_counter()
+    timer_P.append(end_time - start_time)
     check_disp.append((best_cost - answer) / best_cost)
     counter += 1
-    # plot_routes(best_routes)
+for test in all_B_set():
+    print(f'Test № {counter}')
+    start_time = time.perf_counter()
+    coordinates, demands, capacity, car, answer = test
+    best_cost, best_routes = genetic_algorithm(demands, coordinates, capacity)
+    print("\nBest Solution:")
+    for i, route in enumerate(best_routes):
+        route_cost = calculate_cost(route, demands, coordinates, capacity)[0]
+        print(f"Route #{i + 1}: {' -> '.join(map(str, route))} | Cost = {route_cost:.2f}")
 
-print(sum(check_disp) / len(check_disp))
+    print(f"\nTotal Cost: {best_cost:.2f}")
+    end_time = time.perf_counter()
+    timer_B.append(end_time - start_time)
+    check_disp.append((best_cost - answer) / best_cost)
+    counter += 1
+
+print("Avarage deviation: ", sum(check_disp) / len(check_disp))
+print("Time for all test from set B: ", sum(timer_B) / len(timer_B))
+print("Time for all test from set P: ", sum(timer_P) / len(timer_P))
+print("Time for all test from set E: ", sum(timer_E) / len(timer_E))
